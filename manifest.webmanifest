@@ -1,9 +1,1 @@
-{
-  "name": "Holiday Split",
-  "short_name": "Holiday Split",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f4f6fb",
-  "theme_color": "#172033",
-  "icons": []
-}
+{"name":"GSpend","short_name":"GSpend","start_url":"/","display":"standalone","background_color":"#f4f6fb","theme_color":"#14213d","description":"Shared holiday spending and settlement"}
