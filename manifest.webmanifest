@@ -5,9 +5,9 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f4f6fb",
-  "theme_color": "#14213d",
-  "description": "Shared group spending and settlement",
+  "background_color": "#F5F7FA",
+  "theme_color": "#0D1B3D",
+  "description": "Track. Split. Settle. Shared group spending, made simple.",
   "categories": ["finance", "utilities"],
   "lang": "en-GB"
 }
