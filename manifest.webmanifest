@@ -1,1 +1,13 @@
-{"name":"GSpend","short_name":"GSpend","start_url":"/","display":"standalone","background_color":"#f4f6fb","theme_color":"#14213d","description":"Shared holiday spending and settlement"}
+{
+  "name": "GSpend",
+  "short_name": "GSpend",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#14213d",
+  "description": "Shared group spending and settlement",
+  "categories": ["finance", "utilities"],
+  "lang": "en-GB"
+}
