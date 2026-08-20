@@ -70,9 +70,14 @@ const NOTIFICATION_TYPES=[
  {id:'expense_edited',label:'Someone edits an expense',group:'Group activity',push:false},
  {id:'expense_deleted',label:'Someone deletes an expense',group:'Group activity',push:false}
 ];
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;updateInstallCard()});
-window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;updateInstallCard(true)});
+const INSTALL_STATE_KEY='gspend_install_confirmed';
+function rememberInstalled(){try{localStorage.setItem(INSTALL_STATE_KEY,'1')}catch{}}
+function forgetInstalled(){try{localStorage.removeItem(INSTALL_STATE_KEY)}catch{}}
+function wasInstalledHere(){try{return localStorage.getItem(INSTALL_STATE_KEY)==='1'}catch{return false}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();forgetInstalled();deferredInstallPrompt=e;updateInstallCard()});
+window.addEventListener('appinstalled',()=>{rememberInstalled();deferredInstallPrompt=null;updateInstallCard(true)});
 function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}
+function isInstalledState(){return isStandalone()||wasInstalledHere()}
 function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
 function isAndroid(){return /android/i.test(navigator.userAgent)}
 function isSamsungBrowser(){return /SamsungBrowser/i.test(navigator.userAgent)}
@@ -82,10 +87,10 @@ function installHelpHtml(){
   if(isAndroid())return `<div class="method"><h3>Install on Android</h3><p class="muted">In Chrome, tap the <b>⋮ menu</b> and choose <b>Install app</b> or <b>Add to Home screen</b>, then confirm. Chrome may only offer its one-tap install prompt after it has finished checking the app.</p></div><p class="tiny">If you have just updated or first visited GSpend, reload once and try Install again.</p>`;
   return `<div class="method"><h3>Install GSpend</h3><p class="muted">Use your browser's address-bar install icon or browser menu and choose <b>Install GSpend</b> / <b>Install app</b>. Chrome and Edge normally show this once the site is installable.</p></div>`;
 }
-function accountInstallHtml(){return isStandalone()?`<div class="divider"></div><h3>GSpend app</h3><div class="method"><span class="positive"><b>Installed on this device</b></span><div class="tiny" style="margin-top:4px">You are currently running GSpend as an installed app.</div></div>`:`<div class="divider"></div><h3>GSpend app</h3><p class="muted">Install GSpend on this device for a Home Screen icon, app-style window and the best push-notification experience.</p><button type="button" class="btn primary" onclick="installGSpend()">Install GSpend</button>`}
-function updateInstallCard(installed=false){const card=$('installCard'),btn=$('installBtn'),text=$('installText');if(!card)return;if(installed||isStandalone()){card.classList.add('hidden');return}card.classList.remove('hidden');btn.classList.remove('hidden');btn.disabled=false;btn.textContent='Install';text.textContent=deferredInstallPrompt?'GSpend is ready to install on this device.':'Install GSpend on this device. If your browser cannot open the one-tap installer yet, we’ll show the exact steps.'}
+function accountInstallHtml(){if(isInstalledState()){const detail=isStandalone()?'You are currently running GSpend as the installed app.':'GSpend has been installed from this browser. Open it from your Home Screen or app launcher.';return `<div class="divider"></div><h3>GSpend app</h3><div class="method"><span class="positive"><b>Installed on this device</b></span><div class="tiny" style="margin-top:4px">${detail}</div></div>`}return `<div class="divider"></div><h3>GSpend app</h3><p class="muted">Install GSpend on this device for a Home Screen icon, app-style window and the best push-notification experience.</p><button type="button" class="btn primary" onclick="installGSpend()">Install GSpend</button>`}
+function updateInstallCard(installed=false){const card=$('installCard'),btn=$('installBtn'),text=$('installText');if(!card)return;if(installed||isInstalledState()){card.classList.add('hidden');return}card.classList.remove('hidden');btn.classList.remove('hidden');btn.disabled=false;btn.textContent='Install';text.textContent=deferredInstallPrompt?'GSpend is ready to install on this device.':'Install GSpend on this device. If your browser cannot open the one-tap installer yet, we’ll show the exact steps.'}
 window.openInstallHelp=()=>openModal('Install GSpend',installHelpHtml(),null);
-window.installGSpend=async()=>{if(isStandalone()){updateInstallCard(true);return}if(deferredInstallPrompt){const prompt=deferredInstallPrompt;deferredInstallPrompt=null;await prompt.prompt();const choice=await prompt.userChoice;if(choice?.outcome!=='accepted')updateInstallCard();return}openInstallHelp()};
+window.installGSpend=async()=>{if(isInstalledState()){updateInstallCard(true);return}if(deferredInstallPrompt){const prompt=deferredInstallPrompt;deferredInstallPrompt=null;await prompt.prompt();const choice=await prompt.userChoice;if(choice?.outcome==='accepted'){rememberInstalled();updateInstallCard(true)}else updateInstallCard();return}openInstallHelp()};
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const CURRENCIES=['GBP','EUR','USD','CAD','AUD','CHF','JPY','NZD','SEK','NOK','DKK','PLN','CZK','HUF','RON','TRY'];const SYMBOL={GBP:'£',EUR:'€',USD:'$',CAD:'C$',AUD:'A$',CHF:'CHF ',JPY:'¥',NZD:'NZ$',SEK:'kr ',NOK:'kr ',DKK:'kr ',PLN:'zł ',CZK:'Kč ',HUF:'Ft ',RON:'lei ',TRY:'₺'};
 function money(n,c=trip?.base_currency||'GBP'){return `${SYMBOL[c]||c+' '}${(Number(n)||0).toFixed(2)}`}
